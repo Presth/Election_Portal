@@ -1,0 +1,178 @@
+<!-- <html lang="en">
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Login page for agent</title>
+</head>
+<body>
+     <form action="" id="login-form">
+          Email
+          <input type="email" id='email'>
+          Password (registered phone number is password)
+          <input type="password" id='password'>
+
+          <button>Login </button>
+     </form>
+     <script src="/axios.js"></script>
+     <script>
+
+          document.getElementById('login-form').addEventListener('submit',async (e)=>{
+               e.preventDefault()
+               email = document.getElementById('email').value
+               password = document.getElementById('password').value
+
+               const login = await axios.post('/login', {
+                    email, password
+               })
+
+               if(login.data.type=="success")location.href="/upload"
+          })
+     </script>
+</body>
+</html> -->
+
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Election Portal</title>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+     <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+     <section>
+          <div class="my-auto form-div text-center p-3 p-md-4 p-lg-5 w-75 mx-auto">
+               <h4 class="text-2xl"> Upload New Election Result </h4>
+
+               <form action="/" id='upload-result-form' class="container text-start">
+                    <div id="message"></div>
+                    <div id="message" style='color:red'></div>
+                    <div class="row my-3">
+                         <div class="col-4">
+                              <label class="fw-bold" for="">Electoral Parties </label>
+                         </div>
+                         <div class="col-8">
+                              <select class="form-select rounded-0" name="" id="party">
+                                   <option value=""> Choose Party </option>
+                              </select>
+                         </div>
+                    </div>
+                    <div class="row my-3">
+                         <div class="col-4">
+                              <label class="fw-bold" for="">Privileged Polling Units </label>
+                         </div>
+                         <div class="col-8">
+                              <select class="form-select rounded-0" name="" id="poll_unit">
+                                   <option value=""> Choose Unit </option>
+                              </select>
+                         </div>
+                    </div>
+
+                    <div class="row my-3">
+                         <div class="col-4">
+                              <label class="fw-bold" for="">No of Score </label>
+                         </div>
+                         <div class="col-8">
+                              <input type="number" plaveholder="Score" id="score" class="form-control rounded-0">
+                         </div>
+                    </div>
+
+
+                    <div class="my-4 text-center">
+                         <button class="btn btn-outline-success rounded-0 px-5"> Upload Result </button>
+                    </div>
+               </form>
+
+               <div class="my-1">
+                    <a class="btn text-success rounded-0 fw-bold p-3 fs-6" href="/"> Back to Results</a>
+               </div>
+               <div class="my-1">
+                    <button class="btn btn-danger rounded-0 fw-bold fs-6" style="background-color: var(--bs-pink);"
+                         onclick="logout()"> Logout Now </button>
+               </div>
+          </div>
+          <div class="last-elem">
+          </div>
+     </section>
+
+
+     <script src="axios.js"></script>
+     <script>
+          axios.defaults.baseURL = "/api/";
+          let msgBox = document.getElementById("message")
+
+          const fetchPartiesAndPU = async () => {
+               const partyFetch = await axios.get("/parties")
+               selectBox = document.getElementById('party')
+               selectBox.innerHTML = `<option value='0'>Choose party</option>`
+
+               if (partyFetch.data.type == "success") {
+                    if (partyFetch.data.parties.length == 0) {
+                         msgBox.innerHTML = "No election party found"
+                    } else {
+                         partyFetch.data.parties.forEach(party => {
+                              selectBox.innerHTML += `<option value='${party.id}'> ${party.name} </option>`
+                         })
+                    }
+               }
+
+               //fetch agent poll_unit
+               const getPollUnit = await axios.get("/agent_poll_units")
+               if (getPollUnit.length == 0) {
+                    msgBox.innerHTML = "No election party found"
+               } else {
+                    document.getElementById('poll_unit').innerHTML = `<option value=""> Choose Unit </option>`
+
+                    getPollUnit.data.forEach(pu => {
+                         document.getElementById('poll_unit').innerHTML += `<option value='${pu.id}'> ${pu.name} (${pu.lga}) </option>`
+                    })
+               }
+          }
+
+          try {
+               fetchPartiesAndPU()
+          } catch (err) {
+               console.log(err);
+          }
+
+          document.getElementById('upload-result-form').addEventListener('submit', async (e) => {
+               e.preventDefault()
+
+               partyVal = document.getElementById('party').value
+               puBox = document.getElementById('poll_unit').value
+               scoreBox = document.getElementById('score').value
+
+               if (selectBox.value == "" || puBox == "" || scoreBox == "") {
+                    document.getElementById('message').textContent = "One or more empty field noted"
+                    return
+               }
+
+               const exec_upload = await axios.post("/upload", {
+                    party: partyVal,
+                    poll_unit: puBox,
+                    score: scoreBox
+               })
+
+               msgBox.innerHTML = exec_upload.data.message
+          })
+
+          const logout = async () => {
+               try {
+                    const logoutCall = await axios.post("/logout")
+
+                    console.log(logoutCall)
+                    if (logoutCall.data.status == true) location.href = "/upload"
+
+               } catch (error) {
+                    msgBox.innerHTML = error
+               }
+          }
+     </script>
+
+</body>
+
+</html>

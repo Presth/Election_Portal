@@ -1,0 +1,30 @@
+section {
+     display: flex;
+     flex-direction: row;
+     min-height: 100%;
+     width: 100%;
+     background: rgb(232, 250, 250, 0.9);
+}
+
+@media only screen and (min-width:768px) {
+     section {
+          background: rgba(236, 255, 248, 0.95);
+          width: 60%;
+     }
+}
+
+.form-div {
+     display: flex;
+     gap: 0.7rem;
+     justify-content: center;
+     flex-direction: column;
+}
+
+.bottom-elem {
+     bottom: 0;
+}
+
+body {
+     background: url('voting-pic.jpg') no-repeat center fixed;
+     background-size: cover;
+}
