@@ -78,8 +78,9 @@
                let pollsHTML = ""
                fetchedResult.forEach((poll) => {
                     pollsHTML += `
-                              <div class="col-sm-3 p-2">
+                              <div class="col-sm-4 col-md-6 col-lg-4 p-2">
                                    <div class="card p-3 fs-3">
+                                        <h6 class='text-capitalize'>${poll.polling_unit_name}</h6>
                                         <span class='fw-bold'> ${poll.party_abbreviation} : </span>
                                         ${poll.party_score}
                                    </div>
