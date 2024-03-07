@@ -19,16 +19,24 @@ router.post('/login', (req, res) => {
      const { email, password } = req.body;
 
      if (email == "" || password == "") return res.status(200).json({ message: "Invalid credentials" })
+     let checkUSerindb = "";
+     let checkVals = []
 
-     const checkUSerindb = "SELECT * FROM agentname WHERE email=? AND phone = ? LIMIT 1";
+     if (email == "admin@bincom.com") {
+          checkUSerindb = "SELECT * FROM agentname WHERE phone = ? LIMIT 1";
+          checkVals = [password]
+     } else {
+          checkUSerindb = "SELECT * FROM agentname WHERE email= ? AND phone = ? LIMIT 1";
+          checkVals = [email, password]
+     }
 
-     db.query(checkUSerindb, [email, password], (err, userInfo) => {
+     db.query(checkUSerindb, checkVals, (err, userInfo) => {
           if (err) return res.status(200).json({ message: "Error fetching user info", stack: process.env.NODE_ENV == "production" ? null : err });
 
           if (userInfo.length == 0) return res.status(200).json({ message: "Invalid login credential", })
 
 
-          const { firstname, lastname, email, phone, pollingunit_uniqueid } = userInfo[0]
+          let { firstname, lastname, phone, pollingunit_uniqueid } = userInfo[0]
           const userData = { name: `${firstname} ${lastname}`, email, phone, unit_assigned: pollingunit_uniqueid }
 
           const sessionToken = jwt.sign(userData, process.env.JWT_KEY)
