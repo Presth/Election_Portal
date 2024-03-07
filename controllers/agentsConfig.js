@@ -13,11 +13,17 @@ export const getUserInfo = (req, res, next) => {
 
 export const getUserPollingUnit = (req, res) => {
      let userAssignPu = res.userInfo.unit_assigned
-     const getPUname = "SELECT a.uniqueid, polling_unit_id, a.polling_unit_name, lga_name FROM polling_unit a JOIN lga b ON a.uniqueid = ? and a.lga_id = b.lga_id "
+     let getPUname = "";
+
+     if (res.userInfo.email == "admin@bincom.com") {
+          getPUname = "SELECT a.uniqueid, polling_unit_id, a.polling_unit_name, lga_name FROM polling_unit a JOIN lga b ON a.lga_id = b.lga_id "
+     } else {
+          getPUname = "SELECT a.uniqueid, polling_unit_id, a.polling_unit_name, lga_name FROM polling_unit a JOIN lga b ON a.uniqueid = ? and a.lga_id = b.lga_id "
+     }
      db.query(getPUname, [userAssignPu], (err, results) => {
           if (err) return res.status(500).json({ message: "Error fetching user polling units" })
 
-          let puResults = results.map(pu => ({ id: pu.uniqueid, name: pu.polling_unit_name, lga: pu.lga_name }))
+          let puResults = results.map(pu => ({ id: pu.uniqueid, name: pu.polling_unit_name, lga: pu.lga_name + " LG" }))
           return res.json(puResults)
 
      })
